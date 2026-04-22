@@ -1,0 +1,26 @@
+# Libraries referenced in the pitfall examples.
+# Install only what you need for the pits you want to execute.
+# Most examples run as type-checked pseudocode without these installed.
+
+# Vector store (pits 1-4, 5, 7, 8, 10, 11, 18)
+qdrant-client>=1.9.0
+
+# Embeddings (any pit that calls embed())
+sentence-transformers>=3.0.0
+# FlagEmbedding>=1.2.0      # alternative: BGE-M3
+
+# Cache & handoff queue (pits 12, 15, 16)
+redis>=5.0.0
+
+# Evaluation (pit 14, 20)
+ragas>=0.2.0
+datasets>=2.18.0
+
+# Image materialization (pit 19)
+requests>=2.32.0
+boto3>=1.34.0               # S3 backup
+
+# Graph / temporal KG (pit 6)
+neo4j>=5.20.0
+
+# Async orchestration (pit 9) — stdlib only, no extra dep

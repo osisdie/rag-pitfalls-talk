@@ -1,0 +1,34 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  syntax-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: AST parse every .py file
+        run: |
+          python - <<'PY'
+          import ast, pathlib, sys
+          failures = []
+          for f in pathlib.Path("pitfalls").glob("*.py"):
+              try:
+                  ast.parse(f.read_text(encoding="utf-8"))
+              except SyntaxError as exc:
+                  failures.append(f"{f}: {exc}")
+          if failures:
+              print("Syntax errors:")
+              for err in failures:
+                  print(f"  {err}")
+              sys.exit(1)
+          print(f"OK: {len(list(pathlib.Path('pitfalls').glob('*.py')))} files parse cleanly")
+          PY
