@@ -1,0 +1,4 @@
+[
+  {"text": "本客服助理主要回答保險商品、理賠流程、保費試算等業務問題。", "source_name": "客服範疇說明", "source_url": "https://example.com/scope", "source_type": "faq"},
+  {"text": "若詢問與業務無關的問題，客服會禮貌婉拒。", "source_name": "客服範圍", "source_url": "https://example.com/scope-policy", "source_type": "faq"}
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "text": "客戶服務專線為 0800-123-456，服務時間週一至週五 09:00-18:00。",
+    "source_name": "客服資訊",
+    "source_url": "https://example.com/support",
+    "source_type": "faq"
+  },
+  {
+    "text": "退款政策：商品收到 7 天內可無條件退貨，需保持原包裝完整。",
+    "source_name": "退款政策",
+    "source_url": "https://example.com/refund",
+    "source_type": "faq"
+  },
+  {
+    "text": "會員累積消費滿 NT$10,000 自動升級為 VIP，可享 9 折優惠。",
+    "source_name": "會員制度",
+    "source_url": "https://example.com/membership",
+    "source_type": "faq"
+  },
+  {
+    "text": "付款方式：支援信用卡、ATM 轉帳、LINE Pay、街口支付。貨到付款需加收 NT$30 手續費。",
+    "source_name": "付款說明",
+    "source_url": "https://example.com/payment",
+    "source_type": "faq"
+  },
+  {
+    "text": "出貨時間：平日下午 3 點前訂單當日出貨，假日訂單次一工作日出貨。",
+    "source_name": "出貨說明",
+    "source_url": "https://example.com/shipping",
+    "source_type": "faq"
+  }
+]

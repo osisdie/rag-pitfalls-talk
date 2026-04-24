@@ -15,12 +15,21 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: AST parse every .py file
+      - name: AST parse every .py file in pitfalls/ and demo/backend/
         run: |
           python - <<'PY'
           import ast, pathlib, sys
+          targets = []
+          for root in ("pitfalls", "demo/backend/app"):
+              p = pathlib.Path(root)
+              if p.exists():
+                  targets.extend(p.rglob("*.py"))
+          # Also check the live-rag default template.
+          default = pathlib.Path("demo/backend/app/core/rag.py.default")
+          if default.exists():
+              targets.append(default)
           failures = []
-          for f in pathlib.Path("pitfalls").glob("*.py"):
+          for f in targets:
               try:
                   ast.parse(f.read_text(encoding="utf-8"))
               except SyntaxError as exc:
@@ -30,5 +39,51 @@ jobs:
               for err in failures:
                   print(f"  {err}")
               sys.exit(1)
-          print(f"OK: {len(list(pathlib.Path('pitfalls').glob('*.py')))} files parse cleanly")
+          print(f"OK: {len(targets)} files parse cleanly")
           PY
+
+  domain-scrub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No private-domain terms leak into public repo
+        # --exclude-dir=.github skips this workflow file itself (which must
+        # contain the very terms it's scanning for in order to scan).
+        run: |
+          set +e
+          hits=$(grep -rnE --color=never \
+            --exclude-dir=.github \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            --exclude-dir=.next \
+            --include='*.py' --include='*.ts' --include='*.tsx' \
+            --include='*.md' --include='*.json' --include='*.yml' \
+            '台鋼|啦啦隊|天鷹|獵鷹|雄鷹|魔鷹|一粒|skyhawks|hunters|Wing Stars' .)
+          if [[ -n "$hits" ]]; then
+            echo "FAIL: forbidden domain terms found"
+            echo "$hits"
+            exit 1
+          fi
+          echo "scrub: CLEAN"
+
+  frontend-typecheck:
+    runs-on: ubuntu-latest
+    # Gentle on PR latency: only run when frontend files actually changed.
+    if: |
+      github.event_name != 'pull_request' ||
+      contains(github.event.pull_request.changed_files, 'demo/frontend/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install deps + typecheck
+        working-directory: demo/frontend
+        run: |
+          if [[ ! -f package.json ]]; then
+            echo "no frontend yet — skipping"
+            exit 0
+          fi
+          npm install --legacy-peer-deps --no-audit --no-fund
+          npm run typecheck

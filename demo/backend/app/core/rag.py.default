@@ -1,0 +1,104 @@
+"""Default rag.py — the baseline shown when no scenario is active.
+
+The 4th dashboard panel renders this file's source. When a scenario
+activates, the scenario's rag_before.py replaces this file; Apply Fix
+swaps it with rag_after.py.
+
+The default below implements **intentionally vanilla** dense-only FAQ
+retrieval — good enough to answer "hello, what can you do?" style
+smoke-test questions, and simple enough to read live on stage.
+"""
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass
+from typing import AsyncIterator
+
+from qdrant_client import models as qmodels
+
+from app.core import embed, llm, qdrant, tracing
+from app.models.schemas import CitationDetail
+
+log = logging.getLogger(__name__)
+
+TOP_K = 3
+COLLECTION = "faq"
+
+
+@dataclass
+class RagContext:
+    query: str
+    session_id: str
+    history: list[dict[str, str]]
+    scenario_id: str | None = None
+
+
+@dataclass
+class RagAnswer:
+    answer_stream: AsyncIterator[str]
+    citations: list[CitationDetail]
+    confidence: float
+    thumbnails: list[str]
+    handoff: bool
+
+
+async def _retrieve(query: str) -> list[CitationDetail]:
+    with tracing.stage("embed"):
+        vec = await embed.embed_one(query)
+    if not vec:
+        return []
+    client = qdrant.get_client()
+    with tracing.stage("search_dense", collection=COLLECTION):
+        hits = await client.query_points(
+            collection_name=COLLECTION,
+            query=vec,
+            using="dense",
+            limit=TOP_K,
+            with_payload=True,
+        )
+    cites: list[CitationDetail] = []
+    for pt in hits.points:
+        payload = pt.payload or {}
+        cites.append(
+            CitationDetail(
+                source_name=payload.get("source_name", "FAQ"),
+                source_type="faq",
+                source_url=payload.get("source_url"),
+                chunk_text=payload.get("text", ""),
+                relevance_score=float(pt.score or 0.0),
+            )
+        )
+    return cites
+
+
+def _build_prompt(query: str, history: list[dict[str, str]], cites: list[CitationDetail]) -> str:
+    ctx = "\n\n".join(f"[{i+1}] {c.chunk_text}" for i, c in enumerate(cites))
+    turns = "\n".join(f"{m['role']}: {m['content']}" for m in history[-4:])
+    return (
+        "Answer the user concisely in the same language as the question. "
+        "Cite [N] when using a specific context snippet.\n\n"
+        f"Context:\n{ctx or '(none)'}\n\n"
+        f"Recent conversation:\n{turns or '(empty)'}\n\n"
+        f"User: {query}\nAssistant:"
+    )
+
+
+async def run_rag(ctx: RagContext) -> RagAnswer:
+    cites: list[CitationDetail] = []
+    try:
+        cites = await _retrieve(ctx.query)
+    except Exception as exc:
+        log.warning("retrieve failed (cold collection? no data yet): %s", exc)
+
+    prompt = _build_prompt(ctx.query, ctx.history, cites)
+    with tracing.stage("llm", model=llm.get_config().model):
+        stream = llm.generate_stream(prompt)
+
+    confidence = max((c.relevance_score for c in cites), default=0.0)
+    return RagAnswer(
+        answer_stream=stream,
+        citations=cites,
+        confidence=confidence,
+        thumbnails=[],
+        handoff=False,
+    )

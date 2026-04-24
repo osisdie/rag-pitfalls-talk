@@ -1,0 +1,34 @@
+{
+	email you@example.com
+}
+
+# Replace DOMAIN with your real hostname, or use <vm-ip>.nip.io for a
+# self-signed-free option that still gets Let's Encrypt.
+rag-demo.example.com {
+	encode zstd gzip
+
+	handle /api/* {
+		reverse_proxy backend:8000 {
+			flush_interval -1
+		}
+	}
+
+	# Admin panels behind basic auth. Regenerate the bcrypt hash:
+	#   docker run --rm caddy:2 caddy hash-password --plaintext 'your-strong-password'
+	handle_path /qdrant/* {
+		basicauth {
+			admin REPLACE_WITH_BCRYPT_HASH
+		}
+		reverse_proxy qdrant:6333
+	}
+	handle_path /neo4j/* {
+		basicauth {
+			admin REPLACE_WITH_BCRYPT_HASH
+		}
+		reverse_proxy neo4j:7474
+	}
+
+	handle {
+		reverse_proxy frontend:3000
+	}
+}

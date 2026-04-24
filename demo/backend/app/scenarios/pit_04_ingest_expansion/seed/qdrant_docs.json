@@ -1,0 +1,6 @@
+[
+  {"text": "收到法院傳票的處理步驟：1. 確認傳票真實性；2. 依約定時間到場；3. 若不便到場請提前聲請延期或請律師代為出庭。", "source_name": "法院傳票處理指南", "source_url": "https://example.com/legal/subpoena", "source_type": "faq", "canonical_id": "subpoena-guide", "variant": "canonical"},
+  {"text": "我被告了怎麼辦：先冷靜確認案由、出庭時間，並評估是否需要律師協助撰寫答辯狀。", "source_name": "法院傳票處理指南 · 變形 1", "source_url": "https://example.com/legal/subpoena", "source_type": "faq", "canonical_id": "subpoena-guide", "variant": "被告"},
+  {"text": "接到法院來信要上庭：請在期限內提交答辯狀，或預約法律諮詢協助。", "source_name": "法院傳票處理指南 · 變形 2", "source_url": "https://example.com/legal/subpoena", "source_type": "faq", "canonical_id": "subpoena-guide", "variant": "上庭"},
+  {"text": "離婚訴訟流程：協議不成時可提起訴訟，由家事法庭受理。", "source_name": "離婚訴訟", "source_url": "https://example.com/legal/divorce", "source_type": "faq"}
+]

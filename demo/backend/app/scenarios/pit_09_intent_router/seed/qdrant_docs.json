@@ -1,0 +1,5 @@
+[
+  {"text": "投訴處理流程：請撥打 0800-999-001 客訴專線，或線上填寫客訴表單，承辦人 24 小時內聯繫您。", "source_name": "投訴處理", "source_url": "https://example.com/complaints", "source_type": "faq"},
+  {"text": "商品保固：全系列商品享一年保固，保固期內免費維修。", "source_name": "商品保固", "source_url": "https://example.com/warranty", "source_type": "faq"},
+  {"text": "配送說明：全台 24 小時到貨，離島 2-3 個工作天。", "source_name": "配送說明", "source_url": "https://example.com/shipping", "source_type": "faq"}
+]

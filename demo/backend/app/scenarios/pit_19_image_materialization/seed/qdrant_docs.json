@@ -1,0 +1,5 @@
+[
+  {"text": "新台幣紙鈔分 100、200、500、1000、2000 元五種面額。每張紙鈔皆印有浮水印、金屬線、隱藏圖案三種防偽特徵。", "source_name": "新台幣紙鈔介紹", "source_url": "https://example.com/currency/ntd", "source_type": "faq", "image_url": "https://this-host-will-404.example.invalid/ntd.jpg", "image_url_local": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='96'><rect width='100%25' height='100%25' fill='%23059669'/><text x='50%25' y='40%25' text-anchor='middle' font-size='20' fill='white' font-family='sans-serif' font-weight='bold'>NT$1000</text><text x='50%25' y='72%25' text-anchor='middle' font-size='10' fill='%23dcfce7' font-family='sans-serif'>materialized · local</text></svg>"},
+  {"text": "新台幣硬幣有 1、5、10、50 元四種面額，50 元為雙色幣。", "source_name": "新台幣硬幣介紹", "source_url": "https://example.com/currency/coins", "source_type": "faq"},
+  {"text": "外幣兌換：請至銀行臨櫃辦理，需備身分證及兌換金額證明。", "source_name": "外幣兌換", "source_url": "https://example.com/currency/exchange", "source_type": "faq"}
+]

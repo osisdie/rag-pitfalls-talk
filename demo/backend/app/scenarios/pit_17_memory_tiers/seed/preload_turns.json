@@ -1,0 +1,12 @@
+[
+  {"role": "user", "content": "你好，我想諮詢保險"},
+  {"role": "assistant", "content": "您好！我可以協助您。請問目前主要關心哪方面的保障？"},
+  {"role": "user", "content": "我的保單編號是 P12345678，姓名張小美，1988 生"},
+  {"role": "assistant", "content": "已記錄您的保單編號 P12345678、1988 年出生。接下來要諮詢什麼？"},
+  {"role": "user", "content": "我想多了解醫療險"},
+  {"role": "assistant", "content": "好的，您現有保單不包含住院日額給付。想要加保嗎？"},
+  {"role": "user", "content": "嗯讓我想想"},
+  {"role": "assistant", "content": "沒問題，您可以隨時回來詢問。"},
+  {"role": "user", "content": "那如果是癌症呢"},
+  {"role": "assistant", "content": "癌症險另計，會另外寄一份建議書給您。"}
+]

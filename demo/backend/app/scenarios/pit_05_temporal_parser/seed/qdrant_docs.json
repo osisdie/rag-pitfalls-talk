@@ -1,0 +1,45 @@
+[
+  {
+    "text": "2019 年度綜合所得稅結算申報期限為 2020 年 5 月 31 日。納稅義務人可於網路、ATM、銀行臨櫃辦理。",
+    "source_name": "2019 年報稅公告",
+    "source_url": "https://example.gov.tw/announcements/2020-05",
+    "source_type": "faq",
+    "filing_year": 2019,
+    "published_at": "2020-04-01",
+    "expires_at": "2020-06-01"
+  },
+  {
+    "text": "2022 年度綜合所得稅結算申報期限延長至 2023 年 6 月 30 日（疫情特別措施）。",
+    "source_name": "2022 年報稅公告（特別延長）",
+    "source_url": "https://example.gov.tw/announcements/2023-06-special",
+    "source_type": "faq",
+    "filing_year": 2022,
+    "published_at": "2023-05-10",
+    "expires_at": "2023-07-01"
+  },
+  {
+    "text": "2024 年度綜合所得稅結算申報期限為 2025 年 5 月 31 日。",
+    "source_name": "2024 年報稅公告",
+    "source_url": "https://example.gov.tw/announcements/2025-05",
+    "source_type": "faq",
+    "filing_year": 2024,
+    "published_at": "2025-04-15",
+    "expires_at": "2025-06-01"
+  },
+  {
+    "text": "2025 年度綜合所得稅結算申報期限為 2026 年 5 月 31 日，週六加班受理。",
+    "source_name": "2025 年報稅公告",
+    "source_url": "https://example.gov.tw/announcements/2026-05",
+    "source_type": "faq",
+    "filing_year": 2025,
+    "published_at": "2026-04-01",
+    "expires_at": "2026-06-01"
+  },
+  {
+    "text": "申報所得稅常見問題：若逾期未申報，將依規定加徵滯納金及利息。詳見申報須知。",
+    "source_name": "常見申報 Q&A",
+    "source_url": "https://example.gov.tw/faq/late-filing",
+    "source_type": "faq",
+    "published_at": "2023-01-01"
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "客服電話是幾號",
+    "expected_substr": "0800-123-456",
+    "expected_source_name": "客服資訊"
+  },
+  {
+    "question": "退款時限多久",
+    "expected_substr": "7 天",
+    "expected_source_name": "退款政策"
+  },
+  {
+    "question": "怎麼成為 VIP",
+    "expected_substr": "10,000",
+    "expected_source_name": "會員制度"
+  },
+  {
+    "question": "可以用 LINE Pay 嗎",
+    "expected_substr": "LINE Pay",
+    "expected_source_name": "付款說明"
+  },
+  {
+    "question": "週末下訂單什麼時候出貨",
+    "expected_substr": "次一工作日",
+    "expected_source_name": "出貨說明"
+  }
+]

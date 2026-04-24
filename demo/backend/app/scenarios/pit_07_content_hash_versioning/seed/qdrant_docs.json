@@ -1,0 +1,42 @@
+[
+  {
+    "id": "aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa",
+    "text": "理賠申請件處理天數：一般案件 5-7 個工作天完成撥款；複雜案件最長 14 天。",
+    "source_name": "理賠作業規則（舊版 v1，2022-03）",
+    "source_url": "https://example.com/claims/process-days",
+    "source_type": "rule_doc",
+    "version": 1,
+    "published_at": "2022-03-01",
+    "content_hash": "old-v1-hash-abc123"
+  },
+  {
+    "id": "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb",
+    "text": "理賠申請件處理天數：自 2026 年 1 月起，一般案件 3 個工作天完成撥款；複雜案件 7 天內。",
+    "source_name": "理賠作業規則（新版 v2，2026-01）",
+    "source_url": "https://example.com/claims/process-days",
+    "source_type": "rule_doc",
+    "version": 2,
+    "published_at": "2026-01-01",
+    "content_hash": "new-v2-hash-xyz789"
+  },
+  {
+    "id": "cccccccc-cccc-4ccc-cccc-cccccccccccc",
+    "text": "理賠申請所需文件：事故證明、身分證影本、理賠申請書、醫療收據正本。",
+    "source_name": "理賠申請文件清單",
+    "source_url": "https://example.com/claims/documents",
+    "source_type": "rule_doc",
+    "version": 1,
+    "published_at": "2024-08-01",
+    "content_hash": "doc-hash-111"
+  },
+  {
+    "id": "dddddddd-dddd-4ddd-dddd-dddddddddddd",
+    "text": "若理賠申請逾 14 天未處理完成，客戶可透過客服專線詢問進度，或申請案件 escalation。",
+    "source_name": "理賠客服流程",
+    "source_url": "https://example.com/claims/escalation",
+    "source_type": "rule_doc",
+    "version": 1,
+    "published_at": "2025-05-15",
+    "content_hash": "escalation-hash-222"
+  }
+]

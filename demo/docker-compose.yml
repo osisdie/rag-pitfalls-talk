@@ -1,0 +1,128 @@
+name: rag-pitfalls-demo
+
+services:
+  caddy:
+    image: caddy:2.8-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+      - qdrant
+      - neo4j
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    environment:
+      BACKEND_URL: http://backend:8000
+      NODE_ENV: production
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    env_file:
+      - ./.env
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      NEO4J_URI: bolt://neo4j:7687
+      POSTGRES_DSN: postgresql://demo:demo@postgres:5432/demo
+      REDIS_URL: redis://redis:6379/0
+      EMBEDDER_URL: http://embedder:80
+      CORS_ORIGINS: "*"
+    volumes:
+      # SA key — host path mounted read-only; user mounts their own.
+      - ./.secrets:/app/.secrets:ro
+      # Live-editable rag.py — mounted as a named volume so apply_fix
+      # survives across container restarts. The container always has
+      # rag.py.default baked in, so a fresh volume bootstraps cleanly.
+      - rag_state:/app/app/core/live
+    expose:
+      - "8000"
+    depends_on:
+      - qdrant
+      - neo4j
+      - postgres
+      - redis
+      - embedder
+    restart: unless-stopped
+
+  embedder:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    command:
+      - --model-id=BAAI/bge-m3
+      - --port=80
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - embedder_cache:/data
+    expose:
+      - "80"
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:v1.14.0
+    volumes:
+      - qdrant_data:/qdrant/storage
+    expose:
+      - "6333"
+      - "6334"
+    restart: unless-stopped
+
+  neo4j:
+    image: neo4j:5.26-community
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-rag-pitfalls-demo}
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      # Let the Browser UI know its external base path when loaded via Caddy.
+      NEO4J_server_http_advertised__address: ":7474"
+      NEO4J_server_bolt_advertised__address: ":7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    expose:
+      - "7474"
+      - "7687"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    expose:
+      - "5432"
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    volumes:
+      - redis_data:/data
+    expose:
+      - "6379"
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
+  qdrant_data:
+  neo4j_data:
+  neo4j_logs:
+  pg_data:
+  redis_data:
+  embedder_cache:
+  rag_state:

@@ -1,0 +1,8 @@
+[
+  {"text": "理賠申請所需文件：事故證明、身分證影本、理賠申請書、醫療收據正本、病歷摘要。", "source_name": "理賠文件清單", "source_url": "https://example.com/claims/docs", "source_type": "faq"},
+  {"text": "交通事故理賠：除一般文件外還需要警方事故證明及三方筆錄。", "source_name": "交通事故理賠", "source_url": "https://example.com/claims/traffic", "source_type": "faq"},
+  {"text": "醫療理賠：需檢附診斷證明、住院收據、手術記錄（如適用）。", "source_name": "醫療理賠", "source_url": "https://example.com/claims/medical", "source_type": "faq"},
+  {"text": "理賠處理時間：一般案件 3-5 個工作天，複雜案件延長至 14 天。", "source_name": "處理時間", "source_url": "https://example.com/claims/timing", "source_type": "faq"},
+  {"text": "理賠查詢：撥打客服專線或登入會員中心即可追蹤進度。", "source_name": "查詢進度", "source_url": "https://example.com/claims/check", "source_type": "faq"},
+  {"text": "申請通路：官網、行動 APP、客服門市、或郵寄都可受理。", "source_name": "申請通路", "source_url": "https://example.com/claims/channels", "source_type": "faq"}
+]

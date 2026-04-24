@@ -1,0 +1,5 @@
+[
+  {"text": "公司統一編號：12345678。地址：台北市信義區松仁路 100 號。", "source_name": "公司基本資料", "source_url": "https://example.com/company/info", "source_type": "entity", "doc_kind": "company"},
+  {"text": "公司資本額：新台幣 5 億元，董事長為林大文。", "source_name": "公司財務概要", "source_url": "https://example.com/company/finance", "source_type": "entity", "doc_kind": "company"},
+  {"text": "公司提供多元商品與服務，詳情請見產品頁面。", "source_name": "商品介紹", "source_url": "https://example.com/products", "source_type": "faq"}
+]

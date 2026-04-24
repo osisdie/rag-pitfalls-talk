@@ -51,4 +51,26 @@ Thumbs.db
 *.local
 .env
 .env.local
+.env.infra
+!.env.infra.example
 scratch/
+
+.claude/settings.local.json
+**/service-account-key.json
+**/service-account*.json
+demo/.secrets/
+
+# Node / Next.js
+node_modules/
+.next/
+.turbo/
+out/
+.npm/
+*.tsbuildinfo
+
+# Demo state (live-edited file; canonical default lives in .default variant)
+demo/backend/app/core/rag.py
+!demo/backend/app/core/rag.py.default
+
+# Runtime volumes (if mounted locally rather than docker named volumes)
+demo/data/

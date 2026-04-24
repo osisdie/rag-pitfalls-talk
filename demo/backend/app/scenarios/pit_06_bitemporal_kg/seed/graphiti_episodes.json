@@ -1,0 +1,18 @@
+[
+  {
+    "subject": "採購合約",
+    "predicate": "APPLIES_RULES_VERSION",
+    "object": "v1",
+    "valid_at": "2022-01-01T00:00:00Z",
+    "invalid_at": "2025-01-01T00:00:00Z",
+    "source": "contract-registry"
+  },
+  {
+    "subject": "採購合約",
+    "predicate": "APPLIES_RULES_VERSION",
+    "object": "v2",
+    "valid_at": "2025-01-01T00:00:00Z",
+    "invalid_at": null,
+    "source": "contract-registry"
+  }
+]

@@ -1,0 +1,6 @@
+[
+  {"text": "自動扣款失敗後，系統會在 3 個工作天內重新嘗試一次；若仍失敗將暫停扣款機制。", "source_name": "自動扣款失敗後續", "source_url": "https://example.com/payment/retry", "source_type": "faq"},
+  {"text": "繳費方式包含：信用卡自動扣款、ATM 轉帳、銀行臨櫃、以及便利商店繳費條碼。", "source_name": "繳費方式總覽", "source_url": "https://example.com/payment/methods", "source_type": "faq"},
+  {"text": "自動扣款授權書可在「帳戶設定」頁面下載填寫，需於扣款日 7 天前完成更新。", "source_name": "授權書流程", "source_url": "https://example.com/payment/auth", "source_type": "faq"},
+  {"text": "新客戶首月可享免手續費優惠，詳見活動頁面。", "source_name": "新客戶優惠", "source_url": "https://example.com/promo", "source_type": "faq"}
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "text": "主任（director）在公司治理中是具有簽核權的中階主管職稱，負責督導所屬單位業務並對高階主管負責。不同產業的主任權責範圍差異甚大，法律上並無統一定義。",
+    "source_name": "公司治理詞彙：主任",
+    "source_url": "https://example.com/glossary/director",
+    "source_type": "rule_doc",
+    "doc_kind": "definition"
+  },
+  {
+    "text": "主任會議每月第一個週二舉行，由各部門主任輪流主持，討論跨部門協作事宜及季度指標進度。",
+    "source_name": "主任會議規章",
+    "source_url": "https://example.com/rules/director-meeting",
+    "source_type": "rule_doc",
+    "doc_kind": "process"
+  },
+  {
+    "text": "張主任（Chang Chu-jen）· 風險管理部主任 · 入職 2019 年 · 負責公司整體風險控管與理賠審核流程。分機 #2301。Email: chang@example.com",
+    "source_name": "員工目錄：張主任",
+    "source_url": "https://example.com/directory/chang",
+    "source_type": "entity",
+    "doc_kind": "employee",
+    "entity_name": "張主任",
+    "image_url": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96'><rect width='100%25' height='100%25' fill='%231e3a8a'/><circle cx='48' cy='38' r='18' fill='%23bfdbfe'/><ellipse cx='48' cy='80' rx='28' ry='14' fill='%23bfdbfe'/><text x='48' y='44' text-anchor='middle' font-size='14' fill='%231e3a8a' font-family='sans-serif'>張</text></svg>"
+  },
+  {
+    "text": "王經理（Wang Mgr）· 營運部經理 · 入職 2017 年 · 負責營運策略規劃。分機 #1502。",
+    "source_name": "員工目錄：王經理",
+    "source_url": "https://example.com/directory/wang",
+    "source_type": "entity",
+    "doc_kind": "employee",
+    "entity_name": "王經理"
+  },
+  {
+    "text": "李副主任（Lee Deputy）· 風險管理部副主任 · 入職 2021 年 · 協助張主任處理理賠案件及風險評估。分機 #2302。",
+    "source_name": "員工目錄：李副主任",
+    "source_url": "https://example.com/directory/lee-deputy",
+    "source_type": "entity",
+    "doc_kind": "employee",
+    "entity_name": "李副主任"
+  }
+]

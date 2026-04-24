@@ -1,0 +1,5 @@
+[
+  {"text": "保費試算：請至官網輸入年齡、性別、投保金額取得即時估算。", "source_name": "保費試算", "source_url": "https://example.com/quote", "source_type": "faq"},
+  {"text": "退保流程：線上申請 → 3-5 天內退款匯入指定帳戶。", "source_name": "退保流程", "source_url": "https://example.com/surrender", "source_type": "faq"},
+  {"text": "契約變更：要保人/受益人變更需附身分證影本及變更申請書。", "source_name": "契約變更", "source_url": "https://example.com/change", "source_type": "faq"}
+]

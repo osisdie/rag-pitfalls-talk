@@ -1,0 +1,4 @@
+[
+  {"text": "採購合約付款條件（2022 版）：付款期限 30 天，逾期加收 1% 利息。", "source_name": "採購合約 v1 (2022)", "source_url": "https://example.com/contracts/v1", "source_type": "rule_doc", "version": 1},
+  {"text": "採購合約付款條件（2025 版）：付款期限延長為 60 天，逾期改收 0.5% 利息，並新增電子發票條款。", "source_name": "採購合約 v2 (2025)", "source_url": "https://example.com/contracts/v2", "source_type": "rule_doc", "version": 2}
+]

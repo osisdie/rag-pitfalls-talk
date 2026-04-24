@@ -1,0 +1,26 @@
+# FastAPI + server
+fastapi==0.115.4
+uvicorn[standard]==0.32.0
+sse-starlette==2.1.3
+pydantic==2.9.2
+pydantic-settings==2.6.1
+python-multipart==0.0.17
+
+# Async DB clients
+asyncpg==0.30.0
+redis==5.2.0
+qdrant-client==1.12.1
+neo4j==5.26.0
+
+# Graphiti (knowledge graph on top of Neo4j)
+graphiti-core==0.7.0
+
+# LLM: Vertex AI via the unified google-genai SDK
+google-genai==0.3.0
+
+# HTTP client (for HF TEI + misc)
+httpx==0.27.2
+
+# Dev / test
+pytest==8.3.3
+pytest-asyncio==0.24.0

@@ -1,0 +1,7 @@
+[
+  {"text": "2020 年防疫公告：居家辦公申請流程請至人資系統提交。此政策已於 2022 年調整。", "source_name": "2020 防疫公告（已失效）", "source_url": "https://example.com/archive/2020-covid", "source_type": "faq", "published_at": "2020-03-01", "archived": true, "click_count_30d": 0},
+  {"text": "2020 年員工旅遊補助：因疫情取消。", "source_name": "2020 員工旅遊（已失效）", "source_url": "https://example.com/archive/2020-travel", "source_type": "faq", "published_at": "2020-05-10", "archived": true, "click_count_30d": 0},
+  {"text": "2024 年端午節放假公告：本公司放假日依政府公告辦理。", "source_name": "2024 端午公告", "source_url": "https://example.com/announcements/2024-dragon-boat", "source_type": "faq", "published_at": "2024-05-15", "archived": false, "click_count_30d": 12},
+  {"text": "2026 年春節放假與調整上班日：詳見 HR 公告。依政府行事曆辦理。", "source_name": "2026 春節公告", "source_url": "https://example.com/announcements/2026-cny", "source_type": "faq", "published_at": "2026-01-05", "archived": false, "click_count_30d": 98},
+  {"text": "公司一般公告索引頁，列出所有年度公告。", "source_name": "公告索引", "source_url": "https://example.com/announcements/", "source_type": "faq", "published_at": "2024-01-01", "archived": false, "click_count_30d": 30}
+]

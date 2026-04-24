@@ -1,0 +1,7 @@
+[
+  {"text": "投保退件常見原因：基本資料填寫錯誤、健康告知未完成、或要保人簽名不符。請檢查申請書後重新送件。", "source_name": "投保退件原因說明", "source_url": "https://example.com/underwriting/rejections", "source_type": "faq"},
+  {"text": "若申請退件，公司於 7 個工作天內以掛號信寄回原申請文件，並附上退件原因說明。", "source_name": "退件處理流程", "source_url": "https://example.com/underwriting/return-flow", "source_type": "faq"},
+  {"text": "保險費試算：請至官網「保費試算」頁面，輸入年齡、性別、投保金額，即可即時估算。", "source_name": "保費試算", "source_url": "https://example.com/quote", "source_type": "faq"},
+  {"text": "續保流程：續保通知書會於到期前 60 天寄出，您可選擇繳費或告知調整投保內容。", "source_name": "續保流程", "source_url": "https://example.com/renewal", "source_type": "faq"},
+  {"text": "客服專線 0800-555-888，週一至週五 09:00-18:00 服務。", "source_name": "客服聯絡", "source_url": "https://example.com/support", "source_type": "faq"}
+]
