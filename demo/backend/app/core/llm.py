@@ -115,24 +115,22 @@ async def generate_stream(
         for attempt in range(1, _RETRY_ATTEMPTS + 1):
             emitted_any = False
             try:
-                # Use the native async API. The earlier sync-via-run_in_executor
-                # implementation broke the gRPC stream's thread affinity inside
-                # uvicorn's worker pool: every chat call after the first failed
-                # in <10 ms with a stale 429, even on a fresh project. Native
-                # `client.aio.*` runs on the request's own event loop.
-                stream = await asyncio.wait_for(
-                    client.aio.models.generate_content_stream(
-                        model=selected_model,
-                        contents=prompt,
-                        config=gen_config,
-                    ),
-                    timeout=_START_TIMEOUT_S,
+                # `client.aio.models.generate_content_stream` is an async
+                # generator function — iterate it directly, do NOT `await`
+                # the call. The earlier sync-via-run_in_executor flow broke
+                # gRPC stream affinity inside uvicorn workers (every call
+                # after the first 429'd in <10 ms even on a fresh project).
+                stream = client.aio.models.generate_content_stream(
+                    model=selected_model,
+                    contents=prompt,
+                    config=gen_config,
                 )
-                async for chunk in stream:
-                    text = getattr(chunk, "text", None)
-                    if text:
-                        emitted_any = True
-                        yield text
+                async with asyncio.timeout(_CHUNK_TIMEOUT_S):
+                    async for chunk in stream:
+                        text = getattr(chunk, "text", None)
+                        if text:
+                            emitted_any = True
+                            yield text
                 return
             except Exception as exc:
                 last_exc = exc
