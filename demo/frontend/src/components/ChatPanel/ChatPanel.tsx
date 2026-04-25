@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { deleteSession, newSession } from "@/lib/api";
-import { postChatStream } from "@/lib/sse";
-import type { ChatMessageClient, ChatResponse } from "@/types";
+import { deleteSession, newSession } from "../../lib/api";
+import { postChatStream } from "../../lib/sse";
+import type { ChatMessageClient, ChatResponse } from "../../types";
 import { MessageList } from "./MessageList";
 import { SessionControls } from "./SessionControls";
 
@@ -114,7 +114,7 @@ export function ChatPanel({ scenarioId, prefill, onPrefillConsumed }: Props) {
   }, [sessionId, scenarioId]);
 
   return (
-    <section className="flex flex-col h-full border border-slate-800 rounded-lg bg-slate-950/40">
+    <section className="flex flex-col flex-1 min-h-0 border border-slate-800 rounded-lg bg-slate-950/40">
       <header className="px-3 py-2 border-b border-slate-800 text-sm font-medium text-slate-300 flex items-center">
         <span>💬 Chat</span>
         {scenarioId && (

@@ -9,7 +9,7 @@ python-multipart==0.0.17
 # Async DB clients
 asyncpg==0.30.0
 redis==5.2.0
-qdrant-client==1.12.1
+qdrant-client[fastembed]==1.12.1
 neo4j==5.26.0
 
 # Graphiti (knowledge graph on top of Neo4j)

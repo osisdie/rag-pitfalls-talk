@@ -55,9 +55,13 @@ async def chat(req: ChatRequest):
         answer = await rag.run_rag(ctx)
     except Exception as exc:
         log.exception("run_rag failed: %s", exc)
+        # Capture into a stable local — `exc` from `as exc:` is auto-deleted
+        # when the except block exits, but `_error_gen` is iterated later by
+        # the SSE response, leaving the closure with a NameError otherwise.
+        err_msg = str(exc) or exc.__class__.__name__
 
         async def _error_gen():
-            yield {"event": "error", "data": json.dumps({"error": str(exc)})}
+            yield {"event": "error", "data": json.dumps({"error": err_msg})}
 
         return EventSourceResponse(_error_gen())
 

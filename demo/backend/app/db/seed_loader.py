@@ -18,6 +18,25 @@ from app.core import embed, graph, qdrant
 
 log = logging.getLogger(__name__)
 
+_bm25_embedder = None
+
+
+def _get_bm25_embedder():
+    """Lazy-init the fastembed BM25 sparse encoder.
+
+    qdrant-client's `Document` helper only runs fastembed on the query path —
+    on upsert it ships the Document to the server and expects server-side
+    inference. Our Qdrant container has no inference service, so we encode
+    BM25 client-side at seed time and submit raw (indices, values) as a
+    SparseVector. The collection's `Modifier.IDF` applies IDF on the server
+    during scoring.
+    """
+    global _bm25_embedder
+    if _bm25_embedder is None:
+        from fastembed import SparseTextEmbedding
+        _bm25_embedder = SparseTextEmbedding("Qdrant/bm25")
+    return _bm25_embedder
+
 
 def content_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
@@ -52,13 +71,22 @@ async def seed_qdrant_docs(
         return 0
     vectors = await embed.embed_dense(texts)
 
+    bm25 = _get_bm25_embedder()
+    sparse = list(bm25.embed(texts))  # SparseEmbedding(indices, values) per doc
+
     points = []
     for i, d in enumerate(docs):
         pid = d.get("id") or stable_point_id(collection, d[text_key])
         points.append(
             qmodels.PointStruct(
                 id=pid,
-                vector={"dense": vectors[i]},
+                vector={
+                    "dense": vectors[i],
+                    "bm25": qmodels.SparseVector(
+                        indices=sparse[i].indices.tolist(),
+                        values=sparse[i].values.tolist(),
+                    ),
+                },
                 payload=d,
             )
         )
