@@ -51,10 +51,10 @@ def _is_lite(model: str) -> bool:
     return model.endswith("-flash-lite")
 
 
-# When a lite model hits quota, escalate to its same-version non-lite peer.
-_LITE_FALLBACK = {
+# Quota-pressure escalation: lite -> flash, flash -> pro (different quota tier).
+_QUOTA_FALLBACK = {
     "gemini-2.5-flash-lite": "gemini-2.5-flash",
-    "gemini-3.1-flash-lite": "gemini-3.1-flash",
+    "gemini-2.5-flash": "gemini-2.5-pro",
 }
 
 
@@ -113,9 +113,10 @@ async def generate_stream(
         return "429" in msg or "RESOURCE_EXHAUSTED" in msg
 
     candidate_models = [effective.model]
-    fallback = _LITE_FALLBACK.get(effective.model)
-    if fallback:
-        candidate_models.append(fallback)
+    cur = effective.model
+    while (nxt := _QUOTA_FALLBACK.get(cur)) and nxt not in candidate_models:
+        candidate_models.append(nxt)
+        cur = nxt
 
     last_exc: Exception | None = None
     for midx, selected_model in enumerate(candidate_models):

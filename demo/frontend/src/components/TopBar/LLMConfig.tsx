@@ -39,8 +39,7 @@ export function LLMConfigBar() {
       >
         <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
         <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-        <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option>
-        <option value="gemini-3.1-flash">gemini-3.1-flash</option>
+        <option value="gemini-2.5-pro">gemini-2.5-pro</option>
       </select>
 
       <label className="text-slate-400">T</label>
