@@ -99,14 +99,6 @@ async def generate_stream(
     )
 
     client = get_client()
-    loop = asyncio.get_running_loop()
-
-    def _start_stream(selected_model: str):
-        return client.models.generate_content_stream(
-            model=selected_model,
-            contents=prompt,
-            config=gen_config,
-        )
 
     def _is_quota_error(exc: Exception) -> bool:
         msg = str(exc)
@@ -121,24 +113,27 @@ async def generate_stream(
     last_exc: Exception | None = None
     for midx, selected_model in enumerate(candidate_models):
         for attempt in range(1, _RETRY_ATTEMPTS + 1):
-            stream = None
             emitted_any = False
             try:
+                # Use the native async API. The earlier sync-via-run_in_executor
+                # implementation broke the gRPC stream's thread affinity inside
+                # uvicorn's worker pool: every chat call after the first failed
+                # in <10 ms with a stale 429, even on a fresh project. Native
+                # `client.aio.*` runs on the request's own event loop.
                 stream = await asyncio.wait_for(
-                    loop.run_in_executor(None, _start_stream, selected_model),
+                    client.aio.models.generate_content_stream(
+                        model=selected_model,
+                        contents=prompt,
+                        config=gen_config,
+                    ),
                     timeout=_START_TIMEOUT_S,
                 )
-                while True:
-                    chunk = await asyncio.wait_for(
-                        loop.run_in_executor(None, next, stream, None),
-                        timeout=_CHUNK_TIMEOUT_S,
-                    )
-                    if chunk is None:
-                        return
+                async for chunk in stream:
                     text = getattr(chunk, "text", None)
                     if text:
                         emitted_any = True
                         yield text
+                return
             except Exception as exc:
                 last_exc = exc
                 is_last_attempt = attempt >= _RETRY_ATTEMPTS
