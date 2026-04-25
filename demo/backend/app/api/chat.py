@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import logging
 import sys
+import time
 import uuid
 
 from fastapi import APIRouter
@@ -71,14 +72,33 @@ async def chat(req: ChatRequest):
 
     async def event_generator():
         collected: list[str] = []
+        # The `tracing.stage("llm")` inside rag.run_rag only wraps the
+        # iterator construction, which is ~0 ms — the real Vertex AI call
+        # happens lazily during this `async for` loop. Measure both
+        # time-to-first-token and total streaming time so the timeline
+        # actually shows Gemini latency to the audience.
+        t_stream_start = time.perf_counter()
+        t_first_token: float | None = None
         try:
             async for token in answer.answer_stream:
+                if t_first_token is None:
+                    t_first_token = time.perf_counter()
+                    tracing.record(
+                        "llm_ttft",
+                        (t_first_token - t_stream_start) * 1000.0,
+                        model=llm_module.get_config().model if (llm_module := sys.modules.get("app.core.llm")) else "?",
+                    )
                 collected.append(token)
                 yield {"event": "token", "data": json.dumps({"text": token})}
         except Exception as exc:
             log.exception("stream iteration failed: %s", exc)
             yield {"event": "error", "data": json.dumps({"error": str(exc)})}
             return
+        if t_first_token is not None:
+            tracing.record(
+                "llm_stream",
+                (time.perf_counter() - t_stream_start) * 1000.0,
+            )
 
         full_text = "".join(collected)
         await app_redis.push_turn(session_id, "assistant", full_text)
