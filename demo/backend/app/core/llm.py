@@ -47,10 +47,21 @@ def get_config() -> LLMConfig:
     return _config
 
 
+def _is_lite(model: str) -> bool:
+    return model.endswith("-flash-lite")
+
+
+# When a lite model hits quota, escalate to its same-version non-lite peer.
+_LITE_FALLBACK = {
+    "gemini-2.5-flash-lite": "gemini-2.5-flash",
+    "gemini-3.1-flash-lite": "gemini-3.1-flash",
+}
+
+
 def set_config(cfg: LLMConfig) -> LLMConfig:
     global _config
     # Web Search grounding only on non-lite
-    if cfg.web_search and cfg.model == "gemini-2.5-flash-lite":
+    if cfg.web_search and _is_lite(cfg.model):
         cfg = cfg.model_copy(update={"web_search": False})
     _config = cfg
     return _config
@@ -58,7 +69,7 @@ def set_config(cfg: LLMConfig) -> LLMConfig:
 
 def _build_tools(cfg: LLMConfig) -> list[types.Tool] | None:
     tools: list[types.Tool] = []
-    if cfg.web_search and cfg.model != "gemini-2.5-flash-lite":
+    if cfg.web_search and not _is_lite(cfg.model):
         tools.append(types.Tool(google_search=types.GoogleSearch()))
     return tools or None
 
@@ -102,8 +113,9 @@ async def generate_stream(
         return "429" in msg or "RESOURCE_EXHAUSTED" in msg
 
     candidate_models = [effective.model]
-    if effective.model == "gemini-2.5-flash-lite":
-        candidate_models.append("gemini-2.5-flash")
+    fallback = _LITE_FALLBACK.get(effective.model)
+    if fallback:
+        candidate_models.append(fallback)
 
     last_exc: Exception | None = None
     for midx, selected_model in enumerate(candidate_models):

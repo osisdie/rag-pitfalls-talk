@@ -27,7 +27,7 @@ export function LLMConfigBar() {
     }
   };
 
-  const webSearchSupported = cfg.model !== "gemini-2.5-flash-lite";
+  const webSearchSupported = !cfg.model.endsWith("-flash-lite");
 
   return (
     <div className="flex items-center gap-3 text-sm flex-wrap">
@@ -39,6 +39,8 @@ export function LLMConfigBar() {
       >
         <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
         <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+        <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option>
+        <option value="gemini-3.1-flash">gemini-3.1-flash</option>
       </select>
 
       <label className="text-slate-400">T</label>
@@ -68,7 +70,7 @@ export function LLMConfigBar() {
         title={
           webSearchSupported
             ? "Gemini Google Search grounding"
-            : "Web Search only on gemini-2.5-flash; switch model first"
+            : "Web Search only on non-lite models; switch model first"
         }
       >
         <input
