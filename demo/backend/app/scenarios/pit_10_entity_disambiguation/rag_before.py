@@ -44,6 +44,10 @@ async def _retrieve(query: str) -> list[CitationDetail]:
             limit=3,
             with_payload=True,
         )
+    # BEFORE path intentionally has no entity handling; short name queries are
+    # forced to rely on generic definition/process docs.
+    non_entity_points = [pt for pt in hits.points if (pt.payload or {}).get("doc_kind") != "employee"]
+    points = non_entity_points or list(hits.points)
     return [
         CitationDetail(
             source_name=(pt.payload or {}).get("source_name", "entity"),
@@ -54,7 +58,7 @@ async def _retrieve(query: str) -> list[CitationDetail]:
             image_url=(pt.payload or {}).get("image_url"),
             relevance_score=float(pt.score or 0.0),
         )
-        for pt in hits.points
+        for pt in points
     ]
 
 
