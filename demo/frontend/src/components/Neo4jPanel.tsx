@@ -35,7 +35,6 @@ export function Neo4jPanel() {
             URL <code className="bg-slate-900 px-1 rounded">bolt://{host}:7687</code>
             {" · "}User <code className="bg-slate-900 px-1 rounded text-emerald-300">neo4j</code>
             <span className="text-amber-400">{" (not admin!)"}</span>
-            {" · "}Pwd <code className="bg-slate-900 px-1 rounded">rag-pitfalls-demo</code>
           </div>
         )}
       </header>

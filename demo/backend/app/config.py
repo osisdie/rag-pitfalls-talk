@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     qdrant_url: str = Field(default="http://qdrant:6333", alias="QDRANT_URL")
     neo4j_uri: str = Field(default="bolt://neo4j:7687", alias="NEO4J_URI")
     neo4j_user: str = Field(default="neo4j", alias="NEO4J_USER")
-    neo4j_password: str = Field(default="rag-pitfalls-demo", alias="NEO4J_PASSWORD")
+    neo4j_password: str = Field(alias="NEO4J_PASSWORD")  # required; set via demo/.env
     postgres_dsn: str = Field(
         default="postgresql://demo:demo@postgres:5432/demo",
         alias="POSTGRES_DSN",

@@ -22,8 +22,9 @@ docker compose up -d
 # open http://localhost
 ```
 
-Default admin creds for Qdrant / Neo4j UIs (behind `/qdrant/*` and `/neo4j/*`):
-`admin` / `rag-pitfalls-demo` — rotate before any public deployment.
+Set `BASIC_AUTH_USER` / `BASIC_AUTH_HASH` (Caddy bcrypt) and `NEO4J_PASSWORD`
+in `demo/.env` before bringing the stack up — there are no in-repo defaults.
+Rotate before any public deployment.
 
 ## Services
 
