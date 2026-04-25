@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { activateScenario, listScenarios } from "@/lib/api";
-import type { ScenarioMeta } from "@/types";
+import { activateScenario, listScenarios } from "../../lib/api";
+import type { ScenarioMeta } from "../../types";
 
 interface Props {
   value: string | null;

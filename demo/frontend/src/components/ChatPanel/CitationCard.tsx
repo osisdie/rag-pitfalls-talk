@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { CitationDetail } from "@/types";
+import type { CitationDetail } from "../../types";
 
 /**
  * Per-citation card. Collapsed by default — shows source name, type icon,

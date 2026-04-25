@@ -1,6 +1,6 @@
 "use client";
 
-import type { CitationDetail, TimelineEvent } from "@/types";
+import type { CitationDetail, TimelineEvent } from "../../types";
 import { CitationCard } from "./CitationCard";
 
 interface Props {

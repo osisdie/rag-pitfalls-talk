@@ -1,7 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import type { ChatMessageClient } from "@/types";
+import type { ChatMessageClient } from "../../types";
 import { ConfidenceBadge } from "./ConfidenceBadge";
 import { ImageThumbnails } from "./ImageThumbnails";
 import { CitationPanel } from "./CitationPanel";

@@ -2,10 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+/*  Theme variables.
+    Default = dark (no attribute or data-theme="dark"). Light theme
+    activates when <html data-theme="light">. Variables drive a small
+    set of fundamentals (body bg + text); the rest of the UI is recoloured
+    via attribute-selector overrides further down. */
+
+:root {
+  --bg-page: #0b1120;
+  --text-default: #e2e8f0;
+}
+
+[data-theme="light"] {
+  --bg-page: #f8fafc;
+  --text-default: #0f172a;
+}
+
 html, body {
   height: 100%;
-  background: #0b1120;
-  color: #e2e8f0;
+  background: var(--bg-page);
+  color: var(--text-default);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Noto Sans TC", "Noto Sans SC", sans-serif;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+/*  Light-mode overrides.
+    Catches the most common dark-theme Tailwind utility classes used in
+    components and remaps them to light-friendly equivalents — without
+    modifying the components themselves. */
+[data-theme="light"] {
+  /* Backgrounds */
+  & .bg-slate-950 { background-color: #ffffff !important; }
+  & .bg-slate-950\/40 { background-color: rgba(248, 250, 252, 0.6) !important; }
+  & .bg-slate-950\/60 { background-color: rgba(248, 250, 252, 0.85) !important; }
+  & .bg-slate-900 { background-color: #f1f5f9 !important; }
+  & .bg-slate-900\/60 { background-color: rgba(241, 245, 249, 0.85) !important; }
+  & .bg-slate-800 { background-color: #e2e8f0 !important; }
+
+  /* Text */
+  & .text-slate-100 { color: #0f172a !important; }
+  & .text-slate-200 { color: #1e293b !important; }
+  & .text-slate-300 { color: #334155 !important; }
+  & .text-slate-400 { color: #475569 !important; }
+  & .text-slate-500 { color: #64748b !important; }
+
+  /* Borders */
+  & .border-slate-800 { border-color: #cbd5e1 !important; }
+  & .border-slate-700 { border-color: #cbd5e1 !important; }
+  & .border-slate-600 { border-color: #94a3b8 !important; }
+
+  /* Hover backgrounds */
+  & .hover\:bg-slate-900:hover { background-color: #e2e8f0 !important; }
+  & .hover\:bg-slate-800:hover { background-color: #cbd5e1 !important; }
+
+  /* Citation freshness badges retain their semantic colour but tone down */
+  & .bg-emerald-900\/60 { background-color: #d1fae5 !important; }
+  & .text-emerald-200 { color: #065f46 !important; }
+  & .border-emerald-700 { border-color: #34d399 !important; }
+  & .bg-amber-900\/60 { background-color: #fef3c7 !important; }
+  & .text-amber-200 { color: #92400e !important; }
+  & .border-amber-700 { border-color: #f59e0b !important; }
+  & .bg-rose-900\/60 { background-color: #fee2e2 !important; }
+  & .text-rose-200 { color: #991b1b !important; }
+  & .border-rose-700 { border-color: #f87171 !important; }
+  & .bg-emerald-900\/50 { background-color: #d1fae5 !important; }
+  & .bg-rose-900\/50 { background-color: #fee2e2 !important; }
 }
