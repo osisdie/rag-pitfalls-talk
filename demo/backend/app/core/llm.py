@@ -98,7 +98,16 @@ async def generate_stream(
         tools=_build_tools(effective),
     )
 
-    client = get_client()
+    # Build a fresh client per request — the previously-cached singleton
+    # poisoned its underlying transport state inside long-lived uvicorn
+    # workers, manifesting as instant <10ms 429s on every call. The cost
+    # of a fresh client is ~50 ms (ADC + channel) — acceptable for a demo.
+    s = get_settings()
+    client = genai.Client(
+        vertexai=True,
+        project=s.vertex_project_id,
+        location=s.resolve_vertex_location(),
+    )
 
     def _is_quota_error(exc: Exception) -> bool:
         msg = str(exc)
