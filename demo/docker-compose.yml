@@ -6,6 +6,14 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      # Required — set in demo/.env (gitignored). To compute the hash:
+      #   docker run --rm caddy:2.8-alpine caddy hash-password --plaintext '<new>'
+      # then put the result into demo/.env as BASIC_AUTH_HASH=<paste>.
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:?must be set in demo/.env}
+      BASIC_AUTH_HASH: ${BASIC_AUTH_HASH:?must be set in demo/.env}
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -57,12 +65,18 @@ services:
     restart: unless-stopped
 
   embedder:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
-    command:
-      - --model-id=BAAI/bge-m3
-      - --port=80
+    # cpu-1.7 ships hf-hub ≥ 0.4 (handles HF's new relative-redirect API).
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.7
+    # BGE-M3's ONNX FP16 weights have caused silent warmup crashes on
+    # CPU inference. We use bge-base-en-v1.5 instead — same author (BAAI),
+    # smaller (110M params, ~400MB RAM vs ~3GB), and proven stable on TEI.
+    # The downside: English-tuned. For 繁中 / 中文 queries we rely on
+    # the cross-lingual nature of dense retrieval; if quality drops, the
+    # fallback is to swap to `intfloat/multilingual-e5-base`.
+    command: --model-id BAAI/bge-base-en-v1.5 --port 80 --dtype float32
     environment:
       HF_TOKEN: ${HF_TOKEN:-}
+      HUGGINGFACE_HUB_CACHE: /data
     volumes:
       - embedder_cache:/data
     expose:
@@ -81,18 +95,17 @@ services:
   neo4j:
     image: neo4j:5.26-community
     environment:
-      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-rag-pitfalls-demo}
+      # Required — set in demo/.env (gitignored).
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?must be set in demo/.env}
       NEO4J_PLUGINS: '["apoc"]'
       NEO4J_dbms_security_procedures_unrestricted: apoc.*
-      # Let the Browser UI know its external base path when loaded via Caddy.
-      NEO4J_server_http_advertised__address: ":7474"
-      NEO4J_server_bolt_advertised__address: ":7687"
-    volumes:
-      - neo4j_data:/data
-      - neo4j_logs:/logs
+    ports:
+      # Bolt protocol (binary, can't be HTTP-proxied by Caddy) needs to be
+      # reachable directly from the user's browser when Neo4j Browser
+      # connects after login. Restrict via GCE firewall, not docker.
+      - "7687:7687"
     expose:
       - "7474"
-      - "7687"
     restart: unless-stopped
 
   postgres:
