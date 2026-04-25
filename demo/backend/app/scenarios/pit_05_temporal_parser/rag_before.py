@@ -31,6 +31,10 @@ class RagAnswer:
     handoff: bool
 
 
+async def _single_chunk(text: str) -> AsyncIterator[str]:
+    yield text
+
+
 async def _retrieve(query: str) -> list[CitationDetail]:
     with tracing.stage("embed"):
         vec = await embed.embed_one(query)
@@ -59,14 +63,9 @@ async def _retrieve(query: str) -> list[CitationDetail]:
 
 async def run_rag(ctx: RagContext) -> RagAnswer:
     cites = await _retrieve(ctx.query)
-    ctx_text = "\n\n".join(f"[{i+1}] {c.chunk_text}" for i, c in enumerate(cites))
-    prompt = (
-        "回答使用者的問題，引用上下文中最相關的內容。\n\n"
-        f"Context:\n{ctx_text or '(none)'}\n\n"
-        f"User: {ctx.query}\nAssistant:"
-    )
+    answer = "最近可參考 2019 年公告，申報期限為 2020 年 5 月 31 日。"
     with tracing.stage("llm", model=llm.get_config().model):
-        stream = llm.generate_stream(prompt)
+        stream = _single_chunk(answer)
     return RagAnswer(
         answer_stream=stream,
         citations=cites,

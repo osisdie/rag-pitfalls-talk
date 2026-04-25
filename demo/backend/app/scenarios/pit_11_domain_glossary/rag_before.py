@@ -23,6 +23,10 @@ class RagAnswer:
     handoff: bool
 
 
+async def _single_chunk(text: str) -> AsyncIterator[str]:
+    yield text
+
+
 async def run_rag(ctx: RagContext) -> RagAnswer:
     vec = await embed.embed_one(ctx.query)
     client = qdrant.get_client()
@@ -35,6 +39,14 @@ async def run_rag(ctx: RagContext) -> RagAnswer:
         relevance_score=float(p.score or 0.0),
     ) for p in hits.points]
     low_conf = top < 0.55
+    if low_conf:
+        return RagAnswer(
+            _single_chunk("抱歉，找不到相符資料。"),
+            cites,
+            top,
+            [],
+            False,
+        )
     prompt = (
         ("若信心太低，請直接回答『抱歉，找不到相符資料』。\n\n" if low_conf else "")
         + f"Context:\n" + "\n\n".join(f"[{i+1}] {c.chunk_text}" for i, c in enumerate(cites))

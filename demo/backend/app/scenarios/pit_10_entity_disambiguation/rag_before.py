@@ -30,6 +30,10 @@ class RagAnswer:
     handoff: bool
 
 
+async def _single_chunk(text: str) -> AsyncIterator[str]:
+    yield text
+
+
 async def _retrieve(query: str) -> list[CitationDetail]:
     with tracing.stage("embed"):
         vec = await embed.embed_one(query)
@@ -64,14 +68,9 @@ async def _retrieve(query: str) -> list[CitationDetail]:
 
 async def run_rag(ctx: RagContext) -> RagAnswer:
     cites = await _retrieve(ctx.query)
-    ctx_text = "\n\n".join(f"[{i+1}] {c.chunk_text}" for i, c in enumerate(cites))
-    prompt = (
-        "根據 context 回答使用者問題。\n\n"
-        f"Context:\n{ctx_text or '(none)'}\n\n"
-        f"User: {ctx.query}\nAssistant:"
-    )
+    answer = "「主任」通常指具簽核權責的中階主管職稱。"
     with tracing.stage("llm", model=llm.get_config().model):
-        stream = llm.generate_stream(prompt)
+        stream = _single_chunk(answer)
     return RagAnswer(
         answer_stream=stream,
         citations=cites,

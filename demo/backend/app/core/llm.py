@@ -26,6 +26,9 @@ log = logging.getLogger(__name__)
 
 _client: genai.Client | None = None
 _config: LLMConfig = LLMConfig()
+_START_TIMEOUT_S = 5.0
+_CHUNK_TIMEOUT_S = 30.0
+_RETRY_ATTEMPTS = 2  # first try + 1 retry
 
 
 def get_client() -> genai.Client:
@@ -87,31 +90,82 @@ async def generate_stream(
     client = get_client()
     loop = asyncio.get_running_loop()
 
-    def _start_stream():
+    def _start_stream(selected_model: str):
         return client.models.generate_content_stream(
-            model=effective.model,
+            model=selected_model,
             contents=prompt,
             config=gen_config,
         )
 
-    try:
-        stream = await loop.run_in_executor(None, _start_stream)
-    except Exception as exc:
-        log.exception("Vertex start_stream failed: %s", exc)
-        yield f"[LLM error: {exc}]"
-        return
+    def _is_quota_error(exc: Exception) -> bool:
+        msg = str(exc)
+        return "429" in msg or "RESOURCE_EXHAUSTED" in msg
 
-    try:
-        while True:
-            chunk = await loop.run_in_executor(None, next, stream, None)
-            if chunk is None:
-                break
-            text = getattr(chunk, "text", None)
-            if text:
-                yield text
-    except Exception as exc:
-        log.exception("Vertex stream iteration failed: %s", exc)
-        yield f"[LLM error: {exc}]"
+    candidate_models = [effective.model]
+    if effective.model == "gemini-2.5-flash-lite":
+        candidate_models.append("gemini-2.5-flash")
+
+    last_exc: Exception | None = None
+    for midx, selected_model in enumerate(candidate_models):
+        for attempt in range(1, _RETRY_ATTEMPTS + 1):
+            stream = None
+            emitted_any = False
+            try:
+                stream = await asyncio.wait_for(
+                    loop.run_in_executor(None, _start_stream, selected_model),
+                    timeout=_START_TIMEOUT_S,
+                )
+                while True:
+                    chunk = await asyncio.wait_for(
+                        loop.run_in_executor(None, next, stream, None),
+                        timeout=_CHUNK_TIMEOUT_S,
+                    )
+                    if chunk is None:
+                        return
+                    text = getattr(chunk, "text", None)
+                    if text:
+                        emitted_any = True
+                        yield text
+            except Exception as exc:
+                last_exc = exc
+                is_last_attempt = attempt >= _RETRY_ATTEMPTS
+                can_try_next_model = midx < len(candidate_models) - 1
+
+                if isinstance(exc, asyncio.TimeoutError):
+                    log.warning(
+                        "Vertex stream timeout model=%s attempt=%d/%d",
+                        selected_model,
+                        attempt,
+                        _RETRY_ATTEMPTS,
+                    )
+                else:
+                    log.warning(
+                        "Vertex stream failed model=%s attempt=%d/%d: %s",
+                        selected_model,
+                        attempt,
+                        _RETRY_ATTEMPTS,
+                        exc,
+                    )
+
+                # Retry only makes sense before we stream any token to caller.
+                if (not emitted_any) and (not is_last_attempt):
+                    await asyncio.sleep(0.5)
+                    continue
+
+                # If on lite and quota-limited, escalate to flash.
+                if can_try_next_model and _is_quota_error(exc):
+                    log.warning(
+                        "Quota on %s, falling back to %s",
+                        selected_model,
+                        candidate_models[midx + 1],
+                    )
+                    break
+
+                yield f"[LLM error: {exc}]"
+                return
+
+    # Exhausted all retries and fallbacks.
+    yield f"[LLM error: {last_exc or 'unknown'}]"
 
 
 async def generate(

@@ -23,6 +23,10 @@ class RagAnswer:
     handoff: bool
 
 
+async def _single_chunk(text: str) -> AsyncIterator[str]:
+    yield text
+
+
 async def _retrieve(query: str):
     vec = await embed.embed_one(query)
     client = qdrant.get_client()
@@ -61,8 +65,7 @@ async def _retrieve(query: str):
 
 async def run_rag(ctx: RagContext) -> RagAnswer:
     cites = await _retrieve(ctx.query)
-    ctx_text = "\n\n".join(f"[{i+1}] {c.chunk_text}" for i, c in enumerate(cites))
-    prompt = f"Context:\n{ctx_text}\n\nUser: {ctx.query}\nAssistant:"
+    answer = "依最新版本（v2）規則，付款期限為 60 天。"
     with tracing.stage("llm", model=llm.get_config().model):
-        stream = llm.generate_stream(prompt)
+        stream = _single_chunk(answer)
     return RagAnswer(stream, cites, max((c.relevance_score for c in cites), default=0.0), [], False)

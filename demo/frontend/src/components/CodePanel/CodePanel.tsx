@@ -212,7 +212,20 @@ export function CodePanel({ scenarioId, bumpKey }: Props) {
             apply-fix diff · v{lastDiff.from} → v{lastDiff.to}
           </summary>
           <pre className="text-[11px] leading-4 p-3 overflow-auto max-h-48 bg-slate-950 text-slate-300 border-t border-slate-800">
-            {lastDiff.text}
+            {lastDiff.text.split("\n").map((line, i) => (
+              <span
+                key={i}
+                className={
+                  line.startsWith("+ ")
+                    ? "block text-emerald-300"
+                    : line.startsWith("- ")
+                      ? "block text-rose-300"
+                      : "block text-slate-400"
+                }
+              >
+                {line}
+              </span>
+            ))}
           </pre>
         </details>
       )}

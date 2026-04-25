@@ -6,7 +6,7 @@ from typing import AsyncIterator
 from app.core import embed, llm, pg as pg_core, qdrant, tracing
 from app.models.schemas import CitationDetail
 
-HANDOFF_THRESHOLD = 0.6
+HANDOFF_THRESHOLD = 0.95
 
 
 @dataclass

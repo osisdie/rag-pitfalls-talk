@@ -74,7 +74,11 @@ async def _retrieve(query: str) -> list[CitationDetail]:
 async def run_rag(ctx: RagContext) -> RagAnswer:
     cites = await _retrieve(ctx.query)
     ctx_text = "\n\n".join(f"[{i+1}] {c.chunk_text}" for i, c in enumerate(cites))
-    prompt = f"Context:\n{ctx_text}\n\nUser: {ctx.query}\nAssistant:"
+    prompt = (
+        "先提供可聯絡『客服』的建議，再補充其餘資訊。\n\n"
+        f"Context:\n{ctx_text}\n\n"
+        f"User: {ctx.query}\nAssistant:"
+    )
     with tracing.stage("llm", model=llm.get_config().model):
         stream = llm.generate_stream(prompt)
     return RagAnswer(stream, cites, max((c.relevance_score for c in cites), default=0.0), [], False)

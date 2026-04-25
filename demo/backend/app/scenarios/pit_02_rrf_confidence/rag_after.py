@@ -43,6 +43,12 @@ class RagAnswer:
     handoff: bool
 
 
+async def _prefix_then_stream(prefix: str, stream: AsyncIterator[str]) -> AsyncIterator[str]:
+    yield prefix
+    async for tok in stream:
+        yield tok
+
+
 async def _retrieve(query: str):
     vec = await embed.embed_one(query)
     client = qdrant.get_client()
@@ -95,5 +101,5 @@ async def run_rag(ctx: RagContext) -> RagAnswer:
         f"Context:\n{ctx_text}\n\nUser: {ctx.query}\nAssistant:"
     )
     with tracing.stage("llm", model=llm.get_config().model):
-        stream = llm.generate_stream(prompt)
+        stream = _prefix_then_stream("中等信心：", llm.generate_stream(prompt))
     return RagAnswer(stream, cites, top_cos, [], False)
