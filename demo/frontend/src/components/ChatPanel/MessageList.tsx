@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { ChatMessageClient } from "@/types";
+import type { ChatMessageClient } from "../../types";
 import { MessageBubble } from "./MessageBubble";
 
 export function MessageList({ messages }: { messages: ChatMessageClient[] }) {

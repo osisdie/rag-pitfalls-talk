@@ -72,3 +72,6 @@ export interface RagVersion {
   author: string;
   created_at: string;
 }
+
+export type LayoutMode = "grid" | "columns" | "tabs" | "focus";
+export type PanelId = "chat" | "code" | "qdrant" | "neo4j";

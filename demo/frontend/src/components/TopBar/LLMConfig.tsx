@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchLLMConfig, saveLLMConfig } from "@/lib/api";
-import type { LLMConfig as LLMConfigType } from "@/types";
+import { fetchLLMConfig, saveLLMConfig } from "../../lib/api";
+import type { LLMConfig as LLMConfigType } from "../../types";
 
 export function LLMConfigBar() {
   const [cfg, setCfg] = useState<LLMConfigType>({

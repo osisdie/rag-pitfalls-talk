@@ -14,7 +14,9 @@ RUN npm install --legacy-peer-deps \
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/public ./public
+# public/ is optional in this project (no static assets yet); create it so
+# Next.js's runtime doesn't warn and the COPY below succeeds in future.
+RUN mkdir -p public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json

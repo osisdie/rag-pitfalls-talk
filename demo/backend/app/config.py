@@ -40,7 +40,7 @@ class Settings(BaseSettings):
 
     # ─── Embedder (HF Text Embeddings Inference, BGE-M3) ─────
     embedder_url: str = Field(default="http://embedder:80", alias="EMBEDDER_URL")
-    embedder_model: str = Field(default="BAAI/bge-m3", alias="EMBEDDER_MODEL")
+    embedder_model: str = Field(default="BAAI/bge-base-en-v1.5", alias="EMBEDDER_MODEL")
     hf_token: str = Field(default="", alias="HF_TOKEN")
 
     # ─── Demo runtime knobs ──────────────────────────────────
@@ -71,6 +71,18 @@ class Settings(BaseSettings):
         if "/" in name:
             name = name.split("/", 1)[1]
         return name
+
+    def resolve_vertex_location(self) -> str:
+        """Normalise zone-shaped values (`asia-east1-b`) to region (`asia-east1`).
+
+        Vertex AI takes regions, not zones. Accept either form so the
+        same env var can also be used for compute zone configuration.
+        """
+        loc = self.vertex_location
+        parts = loc.rsplit("-", 1)
+        if len(parts) == 2 and len(parts[1]) == 1 and parts[1].isalpha():
+            return parts[0]
+        return loc
 
 
 @lru_cache(maxsize=1)

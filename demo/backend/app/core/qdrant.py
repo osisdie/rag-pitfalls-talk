@@ -15,10 +15,12 @@ _client: AsyncQdrantClient | None = None
 # Standard collections seeded across scenarios. Per-scenario variants
 # may swap payload schemas but keep these names stable.
 COLLECTIONS = {
-    "faq": {"distance": models.Distance.COSINE, "size": 1024},
-    "rule_doc": {"distance": models.Distance.COSINE, "size": 1024},
-    "entity": {"distance": models.Distance.COSINE, "size": 1024},
-    "temporal": {"distance": models.Distance.COSINE, "size": 1024},
+    # 768-dim matches bge-base-en-v1.5 (the actual model running). If you
+    # swap embedders, drop collections + re-seed.
+    "faq": {"distance": models.Distance.COSINE, "size": 768},
+    "rule_doc": {"distance": models.Distance.COSINE, "size": 768},
+    "entity": {"distance": models.Distance.COSINE, "size": 768},
+    "temporal": {"distance": models.Distance.COSINE, "size": 768},
 }
 
 
@@ -32,7 +34,7 @@ def get_client() -> AsyncQdrantClient:
 
 async def ensure_collection(
     name: str,
-    vector_size: int = 1024,
+    vector_size: int = 768,
     distance: models.Distance = models.Distance.COSINE,
 ) -> None:
     """Idempotently create a collection with dense + BM25 sparse vectors."""

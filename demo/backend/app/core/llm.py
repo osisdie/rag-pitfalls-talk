@@ -35,7 +35,7 @@ def get_client() -> genai.Client:
         _client = genai.Client(
             vertexai=True,
             project=s.vertex_project_id,
-            location=s.vertex_location,
+            location=s.resolve_vertex_location(),
         )
     return _client
 

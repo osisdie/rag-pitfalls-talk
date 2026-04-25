@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   applyFix,
@@ -8,8 +8,8 @@ import {
   listVersions,
   revertToVersion,
   saveRagCode,
-} from "@/lib/api";
-import type { RagVersion } from "@/types";
+} from "../../lib/api";
+import type { RagVersion } from "../../types";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react").then((m) => m.default), {
   ssr: false,
@@ -27,6 +27,33 @@ export function CodePanel({ scenarioId, bumpKey }: Props) {
   const [versions, setVersions] = useState<RagVersion[]>([]);
   const [banner, setBanner] = useState<{ ok: boolean; msg: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [hostSize, setHostSize] = useState<{ w: number; h: number } | null>(null);
+  const editorRef = useRef<any>(null);
+  const editorHostRef = useRef<HTMLDivElement>(null);
+
+  // Pass Monaco explicit pixel dimensions instead of "100%". The
+  // @monaco-editor/react wrapper sets its own `<section style="height:
+  // 100%">` which fails to resolve through this project's deep
+  // `flex-1 min-h-0` chain — Monaco then latches onto a 5px stale
+  // measurement and never recovers (Tabs layout: tab switch leaves
+  // rag.py rendered as a sliver). Measuring the host with a
+  // ResizeObserver and feeding numbers to Monaco bypasses the
+  // percentage-resolution bug entirely.
+  useEffect(() => {
+    const host = editorHostRef.current;
+    if (!host || typeof ResizeObserver === "undefined") return;
+    const sync = () => {
+      const r = host.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return;
+      setHostSize((prev) =>
+        prev && prev.w === r.width && prev.h === r.height ? prev : { w: r.width, h: r.height },
+      );
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(host);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -94,7 +121,7 @@ export function CodePanel({ scenarioId, bumpKey }: Props) {
   };
 
   return (
-    <section className="flex flex-col h-full border border-slate-800 rounded-lg bg-slate-950/40">
+    <section className="flex flex-col flex-1 min-h-0 border border-slate-800 rounded-lg bg-slate-950/40">
       <header className="px-3 py-2 border-b border-slate-800 text-sm flex items-center gap-2 text-slate-300">
         <span>📝 rag.py</span>
         {versionId != null && (
@@ -139,21 +166,32 @@ export function CodePanel({ scenarioId, bumpKey }: Props) {
         </div>
       )}
 
-      <div className="flex-1 min-h-0">
-        <MonacoEditor
-          height="100%"
-          defaultLanguage="python"
-          theme="vs-dark"
-          value={source}
-          onChange={(v) => setSource(v ?? "")}
-          options={{
-            readOnly: !freeEdit,
-            fontSize: 12,
-            minimap: { enabled: false },
-            lineNumbers: "on",
-            wordWrap: "on",
-          }}
-        />
+      <div className="flex-1 min-h-0" ref={editorHostRef}>
+        {hostSize && (
+          <MonacoEditor
+            width={hostSize.w}
+            height={hostSize.h}
+            defaultLanguage="python"
+            theme={
+              typeof document !== "undefined" &&
+              document.documentElement.getAttribute("data-theme") === "light"
+                ? "vs-light"
+                : "vs-dark"
+            }
+            value={source}
+            onChange={(v) => setSource(v ?? "")}
+            onMount={(editor) => {
+              editorRef.current = editor;
+            }}
+            options={{
+              readOnly: !freeEdit,
+              fontSize: 12,
+              minimap: { enabled: false },
+              lineNumbers: "on",
+              wordWrap: "on",
+            }}
+          />
+        )}
       </div>
 
       {versions.length > 0 && (
