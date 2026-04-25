@@ -27,6 +27,20 @@ gcloud compute ssh "$VM_NAME" --zone="$GCP_ZONE" --project="$GCP_PROJECT" --comm
     echo 'HINT: edit /opt/rag-pitfalls-talk/demo/.env if you need to override anything'
   fi
   cd demo && docker compose up -d
+
+  # Flush response cache so any error string carried over from a prior
+  # session can't replay during today's demo. /activate and /apply-fix
+  # also flush, but doing it at boot guarantees a clean first impression
+  # without having to remember to click anything.
+  for i in {1..15}; do
+    if docker compose exec -T redis redis-cli PING 2>/dev/null | grep -q PONG; then
+      docker compose exec -T redis sh -c \
+        'redis-cli --scan --pattern \"cache:response:*\" | xargs -r redis-cli DEL' \
+        | sed 's/^/   redis flush: /'
+      break
+    fi
+    sleep 1
+  done
 "
 
 IP=$(gcloud compute instances describe "$VM_NAME" --zone="$GCP_ZONE" --project="$GCP_PROJECT" \
