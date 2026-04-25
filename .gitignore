@@ -4,7 +4,10 @@ __pycache__/
 *$py.class
 *.so
 
-# Distribution / packaging
+# Distribution / packaging (Python)
+# Anchor `lib/` and `lib64/` to the repo root with leading slash so they
+# only match Python distribution dirs — without the slash, they'd also
+# swallow demo/frontend/src/lib/ (the Next.js HTTP/SSE helpers).
 .Python
 build/
 develop-eggs/
@@ -12,8 +15,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -54,11 +57,13 @@ Thumbs.db
 .env.infra
 !.env.infra.example
 scratch/
-
 .claude/settings.local.json
+.playwright-mcp
+**/key.json
 **/service-account-key.json
 **/service-account*.json
 demo/.secrets/
+tmp/
 
 # Node / Next.js
 node_modules/

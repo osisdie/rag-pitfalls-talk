@@ -43,3 +43,15 @@ def stage(name: str, **meta) -> Iterator[None]:
                     meta=meta,
                 )
             )
+
+
+def record(name: str, took_ms: float, **meta) -> None:
+    """Append a timeline event with an explicit duration.
+
+    Use this when the start and end of a measured span aren't inside the
+    same `with` block — e.g. when the start is in the request handler and
+    the end is several yields later inside an async generator.
+    """
+    bucket = _current.get()
+    if bucket is not None:
+        bucket.append(TimelineEvent(stage=name, took_ms=took_ms, meta=meta))
