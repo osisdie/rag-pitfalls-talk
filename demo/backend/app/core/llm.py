@@ -176,11 +176,11 @@ async def generate_stream(
                     )
                     break
 
-                yield f"[LLM error: {exc}]"
+                yield f"[LLM error type={type(exc).__name__}: {exc}]"
                 return
 
     # Exhausted all retries and fallbacks.
-    yield f"[LLM error: {last_exc or 'unknown'}]"
+    yield f"[LLM error type={type(last_exc).__name__ if last_exc else 'unknown'}: {last_exc or 'unknown'}]"
 
 
 async def generate(
