@@ -1,48 +1,74 @@
 {
-	# Global options.
-	# For production with a real domain, set email and remove auto_https off:
-	#   email you@example.com
 	auto_https off
 	admin off
 }
 
-# ─── Dev / single-speaker GCP VM profile ─────────────────────
-# Listens on :80 for both http://localhost and the VM's public IP.
-# For production (real domain + Let's Encrypt), replace `:80` with the
-# domain block — see `Caddyfile.prod` in the PLAYBOOK appendix.
+# ─── :80 — auth on parent page + /api/*; iframe-resource paths free ───────────
 :80 {
 	encode zstd gzip
 
-	# Chat + everything FastAPI
-	handle /api/* {
-		reverse_proxy backend:8000 {
-			# SSE: keep the stream open and disable buffering
-			flush_interval -1
-		}
-	}
 	handle /health {
 		reverse_proxy backend:8000
 	}
 
-	# Qdrant dashboard
-	# Qdrant's UI expects to be served at the root, so we proxy transparently.
-	# For a public VM, wrap this in a `basicauth` block (see Caddyfile.prod).
-	handle_path /qdrant/* {
+	@qdrant {
+		path /dashboard* /collections* /telemetry /metrics
+		path /cluster* /snapshots* /locks /openapi.json /healthz
+	}
+	handle @qdrant {
 		reverse_proxy qdrant:6333
 	}
 
-	# Neo4j Browser
-	# Neo4j Browser is a single-page app; strip /neo4j/ prefix and proxy.
-	# For a public VM, wrap in basicauth and terminate TLS at Caddy.
-	handle_path /neo4j/* {
+	@neo4j_rest {
+		path /db/*
+	}
+	handle @neo4j_rest {
 		reverse_proxy neo4j:7474
 	}
-	# Neo4j Browser also issues Bolt WS connections directly to :7687 on
-	# the origin host — for the iframe to work on a remote VM you'll
-	# need to expose 7687 via a firewall rule or use Caddy's WS proxy.
 
-	# Everything else → Next.js
+	handle /api/* {
+		basicauth {
+			{$BASIC_AUTH_USER} {$BASIC_AUTH_HASH}
+		}
+		reverse_proxy backend:8000 {
+			flush_interval -1
+		}
+	}
+
 	handle {
+		basicauth {
+			{$BASIC_AUTH_USER} {$BASIC_AUTH_HASH}
+		}
 		reverse_proxy frontend:3000
 	}
+}
+
+# ─── :8080 — Qdrant dashboard at root (iframe-target, unauth) ─────────────────
+# Qdrant + Neo4j set X-Frame-Options:DENY and CSP frame-ancestors 'none' on
+# their responses. The browser honours those regardless of what the parent
+# page wants, so iframes get blocked. Caddy's top-level `header` directive
+# strips them on the way out.
+#
+# `header` with no matcher applies to every response in the block. `-Name`
+# means "delete this header". defer=true so Caddy removes it AFTER the
+# reverse-proxied response has been assembled.
+:8080 {
+	encode zstd gzip
+	header {
+		-X-Frame-Options
+		-Content-Security-Policy
+		defer
+	}
+	reverse_proxy qdrant:6333
+}
+
+# ─── :8081 — Neo4j Browser at root (iframe-target, unauth) ────────────────────
+:8081 {
+	encode zstd gzip
+	header {
+		-X-Frame-Options
+		-Content-Security-Policy
+		defer
+	}
+	reverse_proxy neo4j:7474
 }
