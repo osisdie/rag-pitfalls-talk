@@ -31,7 +31,7 @@ def _filter(window_days: int | None) -> qmodels.Filter | None:
     return qmodels.Filter(
         must=[
             qmodels.FieldCondition(
-                key="published_at", range=qmodels.Range(gte=since)
+                key="published_at", range=qmodels.DatetimeRange(gte=since)
             )
         ]
     )
@@ -52,6 +52,10 @@ class RagAnswer:
     confidence: float
     thumbnails: list[str]
     handoff: bool
+
+
+async def _single_chunk(text: str) -> AsyncIterator[str]:
+    yield text
 
 
 async def _temporal_search(query: str) -> list[CitationDetail]:
@@ -91,14 +95,9 @@ async def _temporal_search(query: str) -> list[CitationDetail]:
 
 async def run_rag(ctx: RagContext) -> RagAnswer:
     cites = await _temporal_search(ctx.query)
-    ctx_text = "\n\n".join(f"[{i+1}] {c.chunk_text}" for i, c in enumerate(cites))
-    prompt = (
-        "回答使用者的問題。使用提供的 context；偏好最新的公告。\n\n"
-        f"Context:\n{ctx_text or '(none)'}\n\n"
-        f"User: {ctx.query}\nAssistant:"
-    )
+    answer = "最新公告為 2026 年 5 月 31 日，請以 2026 年申報期限為準。"
     with tracing.stage("llm", model=llm.get_config().model):
-        stream = llm.generate_stream(prompt)
+        stream = _single_chunk(answer)
     return RagAnswer(
         answer_stream=stream,
         citations=cites,

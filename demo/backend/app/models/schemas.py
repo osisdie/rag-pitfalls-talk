@@ -113,7 +113,11 @@ class SaveCodeRequest(BaseModel):
 
 
 class LLMConfig(BaseModel):
-    model: Literal["gemini-2.5-flash-lite", "gemini-2.5-flash"] = "gemini-2.5-flash-lite"
+    model: Literal[
+        "gemini-2.5-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+    ] = "gemini-2.5-flash-lite"
     temperature: float = Field(default=0.3, ge=0.0, le=2.0)
     top_p: float = Field(default=0.95, ge=0.0, le=1.0)
     web_search: bool = False  # requires model != -lite

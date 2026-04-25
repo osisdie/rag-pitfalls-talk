@@ -64,6 +64,7 @@ scratch/
 **/service-account*.json
 demo/.secrets/
 tmp/
+.tmp/
 
 # Node / Next.js
 node_modules/

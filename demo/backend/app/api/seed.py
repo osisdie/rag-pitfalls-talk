@@ -6,6 +6,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 
 from app.core import pg
+from app.core import redis as app_redis
 from app.scenarios import registry
 from app.scenarios.base import SeedContext, scenario_dir
 
@@ -31,6 +32,9 @@ async def seed_one(pit_id: str) -> dict:
     except Exception as exc:
         log.exception("seed_one %s failed", pit_id)
         raise HTTPException(500, str(exc))
+    # Re-seeding the underlying corpus changes what answers *should* be —
+    # any cached response from before the reseed would mask the new data.
+    await app_redis.cache_response_bust_prefix("")
     return {"ok": True, "pit_id": pit_id}
 
 
@@ -45,4 +49,5 @@ async def seed_all() -> dict:
         except Exception as exc:
             log.exception("seed_all %s failed", sc.pit_id)
             results[sc.pit_id] = f"error: {exc}"
+    await app_redis.cache_response_bust_prefix("")
     return {"results": results}

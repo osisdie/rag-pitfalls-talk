@@ -13,6 +13,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 
 from app.core import pg
+from app.core import redis as app_redis
 from app.core import reload as rag_reload
 from app.models.schemas import ScenarioMeta
 from app.scenarios import registry
@@ -73,5 +74,9 @@ async def activate_scenario(pit_id: str) -> ScenarioMeta:
     )
     if not result.ok:
         raise HTTPException(500, f"rag reload failed: {result.error}")
+
+    # Bust the response cache so we don't replay a previous scenario's
+    # cached answer (or a poisoned error sentinel) into the new mode.
+    await app_redis.cache_response_bust_prefix("")
 
     return scenario_meta(sc, current_state="before")
