@@ -26,6 +26,11 @@ export function CodePanel({ scenarioId, bumpKey }: Props) {
   const [freeEdit, setFreeEdit] = useState(false);
   const [versions, setVersions] = useState<RagVersion[]>([]);
   const [banner, setBanner] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [lastDiff, setLastDiff] = useState<{
+    from: number;
+    to: number;
+    text: string;
+  } | null>(null);
   const [busy, setBusy] = useState(false);
   const [hostSize, setHostSize] = useState<{ w: number; h: number } | null>(null);
   const editorRef = useRef<any>(null);
@@ -71,11 +76,34 @@ export function CodePanel({ scenarioId, bumpKey }: Props) {
       } else {
         setVersions([]);
       }
+      setLastDiff(null);
     })();
   }, [scenarioId, bumpKey]);
 
+  const buildQuickDiff = (before: string, after: string) => {
+    const a = before.split("\n");
+    const b = after.split("\n");
+    const max = Math.max(a.length, b.length);
+    const out: string[] = [];
+    for (let i = 0; i < max; i += 1) {
+      const left = a[i] ?? "";
+      const right = b[i] ?? "";
+      if (left === right) continue;
+      if (left !== "") out.push(`- ${left}`);
+      if (right !== "") out.push(`+ ${right}`);
+      if (out.length >= 240) {
+        out.push("... (diff truncated)");
+        break;
+      }
+    }
+    return out.join("\n") || "(no textual diff)";
+  };
+
   const onApplyFix = async () => {
     if (!scenarioId) return;
+    const prevVersionId = versionId;
+    const prevSource = source;
+    setLastDiff(null);
     setBusy(true);
     const res = await applyFix();
     setBanner(
@@ -88,7 +116,19 @@ export function CodePanel({ scenarioId, bumpKey }: Props) {
     setSource(curr.source ?? "");
     setVersionId(curr.version_id);
     try {
-      setVersions(await listVersions(scenarioId));
+      const nextVersions = await listVersions(scenarioId);
+      setVersions(nextVersions);
+      if (res.ok && res.version_id && prevVersionId != null) {
+        const newer = nextVersions.find((v) => v.id === res.version_id);
+        const older = nextVersions.find((v) => v.id === prevVersionId);
+        const before = older?.source ?? prevSource;
+        const after = newer?.source ?? curr.source ?? "";
+        setLastDiff({
+          from: prevVersionId,
+          to: res.version_id,
+          text: buildQuickDiff(before, after),
+        });
+      }
     } catch {}
   };
 
@@ -164,6 +204,17 @@ export function CodePanel({ scenarioId, bumpKey }: Props) {
         >
           {banner.msg} <span className="opacity-50">(click to dismiss)</span>
         </div>
+      )}
+
+      {lastDiff && (
+        <details className="border-b border-slate-800">
+          <summary className="px-3 py-2 text-xs cursor-pointer text-slate-300">
+            apply-fix diff · v{lastDiff.from} → v{lastDiff.to}
+          </summary>
+          <pre className="text-[11px] leading-4 p-3 overflow-auto max-h-48 bg-slate-950 text-slate-300 border-t border-slate-800">
+            {lastDiff.text}
+          </pre>
+        </details>
       )}
 
       <div className="flex-1 min-h-0" ref={editorHostRef}>
