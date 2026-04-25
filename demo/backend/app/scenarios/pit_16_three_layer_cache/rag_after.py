@@ -78,8 +78,13 @@ async def run_rag(ctx: RagContext) -> RagAnswer:
         async for tok in llm.generate_stream(prompt):
             collected.append(tok)
             yield tok
+        full = "".join(collected)
+        # Don't cache LLM error sentinels — caching '[LLM error: ...]' for
+        # 24h poisons every subsequent identical query (same lesson as pit_15).
+        if full.startswith("[LLM error"):
+            return
         await app_redis.cache_response_set(rkey, {
-            "answer": "".join(collected),
+            "answer": full,
             "confidence": max((c.relevance_score for c in cites), default=0.0),
         }, ttl=86400)
 

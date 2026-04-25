@@ -6,6 +6,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 
 from app.core import pg
+from app.core import redis as app_redis
 from app.core import reload as rag_reload
 from app.models.schemas import ApplyFixResult, RagVersion, SaveCodeRequest
 from app.scenarios import registry
@@ -49,12 +50,16 @@ async def apply_fix() -> ApplyFixResult:
         source = rag_after_source(pit_id)
     except FileNotFoundError:
         raise HTTPException(500, f"{pit_id}/rag_after.py missing")
-    return await rag_reload.apply_rag_source(
+    result = await rag_reload.apply_rag_source(
         source,
         scenario_id=pit_id,
         author=f"scenario:{pit_id}",
         label=f"{pit_id} · after (apply-fix)",
     )
+    # Bust the response cache so before/after answers don't bleed across the
+    # toggle and a poisoned error sentinel from a previous run can't replay.
+    await app_redis.cache_response_bust_prefix("")
+    return result
 
 
 @router.post("/rag/save", response_model=ApplyFixResult)
