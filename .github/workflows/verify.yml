@@ -69,10 +69,13 @@ jobs:
 
   frontend-typecheck:
     runs-on: ubuntu-latest
-    # Gentle on PR latency: only run when frontend files actually changed.
-    if: |
-      github.event_name != 'pull_request' ||
-      contains(github.event.pull_request.changed_files, 'demo/frontend/')
+    # Always run on every push/PR. The previous skip-on-PR shortcut used
+    # `contains(github.event.pull_request.changed_files, 'demo/frontend/')`,
+    # but that field doesn't exist on the webhook payload (it's only on the
+    # GitHub REST API for files), so contains() always returned false and
+    # PRs silently skipped this job. Result: regressions slipped past PR
+    # review and only blew up on post-merge runs to main. ~25s per non-
+    # frontend PR is a fine price for catching that pre-merge.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
