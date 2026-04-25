@@ -31,7 +31,7 @@ def _filter(window_days: int | None) -> qmodels.Filter | None:
     return qmodels.Filter(
         must=[
             qmodels.FieldCondition(
-                key="published_at", range=qmodels.Range(gte=since)
+                key="published_at", range=qmodels.DatetimeRange(gte=since)
             )
         ]
     )
