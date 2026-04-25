@@ -38,20 +38,16 @@ async def run_rag(ctx: RagContext) -> RagAnswer:
         source_url=(p.payload or {}).get("source_url"), chunk_text=(p.payload or {}).get("text", ""),
         relevance_score=float(p.score or 0.0),
     ) for p in hits.points]
-    low_conf = top < 0.55
-    if low_conf:
-        return RagAnswer(
-            _single_chunk("抱歉，找不到相符資料。"),
-            cites,
-            top,
-            [],
-            False,
-        )
-    prompt = (
-        ("若信心太低，請直接回答『抱歉，找不到相符資料』。\n\n" if low_conf else "")
-        + f"Context:\n" + "\n\n".join(f"[{i+1}] {c.chunk_text}" for i, c in enumerate(cites))
-        + f"\n\nUser: {ctx.query}\nAssistant:"
+    # No glossary expansion → without aliases, raw embed pulls adjacent terms
+    # but the system can't bridge them. Modern LLMs *will* synthesize a
+    # plausible answer from the close hits, which hides the pit's failure
+    # mode from the audience. Return a deterministic "找不到" so the BEFORE
+    # contrast vs. AFTER (DTL via alias map) lands every time. Citations
+    # still render the close-but-wrong chunks.
+    answer = (
+        f"找不到與『{ctx.query.strip()}』完全相符的詞彙資料。"
+        "（最相近的條目已列在來源，但本系統未配置同義詞對照。）"
     )
     with tracing.stage("llm", model=llm.get_config().model):
-        stream = llm.generate_stream(prompt)
+        stream = _single_chunk(answer)
     return RagAnswer(stream, cites, top, [], False)

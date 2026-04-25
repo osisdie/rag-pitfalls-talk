@@ -35,10 +35,20 @@ async def _retrieve(query: str):
     ) for p in hits.points]
 
 
+async def _single_chunk(text: str) -> AsyncIterator[str]:
+    yield text
+
+
 async def run_rag(ctx: RagContext) -> RagAnswer:
     cites = await _retrieve(ctx.query)
-    ctx_text = "\n\n".join(f"[{i+1}] {c.chunk_text}" for i, c in enumerate(cites))
-    prompt = f"Context:\n{ctx_text}\n\nUser: {ctx.query}\nAssistant:"
+    # No retention sweep → archived 2020 docs stay searchable and the LLM
+    # will recite them. Make BEFORE deterministic so the audience sees the
+    # canonical "outdated 居家辦公 公告" leak every time, then AFTER (with
+    # retention sweep) cleanly returns "已歸檔" instead.
+    answer = (
+        "根據 FAQ：2020 年防疫公告指出居家辦公申請流程請至人資系統提交，"
+        "並提及 2020 員工旅遊補助。"
+    )
     with tracing.stage("llm", model=llm.get_config().model):
-        stream = llm.generate_stream(prompt)
+        stream = _single_chunk(answer)
     return RagAnswer(stream, cites, max((c.relevance_score for c in cites), default=0.0), [], False)
