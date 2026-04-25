@@ -69,9 +69,15 @@ async def run_rag(ctx: RagContext) -> RagAnswer:
         async for tok in llm.generate_stream(prompt):
             collected.append(tok)
             yield tok
+        full = "".join(collected)
+        # Don't cache LLM error sentinels — caching '[LLM error: ...]' for
+        # the TTL window poisons every subsequent identical query and looks
+        # identical to a real answer to anyone reading the cache.
+        if full.startswith("[LLM error"):
+            return
         with tracing.stage("cache_store", ttl=TTL_SECONDS):
             await app_redis.cache_response_set(key, {
-                "answer": "".join(collected),
+                "answer": full,
                 "citations": [c.model_dump(mode="json") for c in cites],
                 "confidence": max((c.relevance_score for c in cites), default=0.0),
             }, ttl=TTL_SECONDS)
